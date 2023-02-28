@@ -112,6 +112,9 @@ fn make_config_file(config: &Config) {
     }
     config_file = config_file + "\n}\n";
 
+    config_file = config_file + "\nHIDE_PORTFOLIO_ROW:{\nyes\n}\n";
+ 
+
     match fs::write(".drp_config", config_file) {
         _ => (),
     }
