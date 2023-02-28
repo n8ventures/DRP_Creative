@@ -12,6 +12,7 @@ pub struct App {
 #[derive(Debug, PartialEq, Eq)]
 pub enum AppKind {
     C4d,
+    C4dR,
     Maya,
     ThreeDsMax,
     AfterEffects,
@@ -20,6 +21,7 @@ pub enum AppKind {
     Photoshop,
     Indesign,
     DavinciResolve,
+    DavinciResolveStudio,
     Clarisse,
     Marvelous,
     Cavalry,
@@ -34,6 +36,7 @@ pub enum AppKind {
 
 pub struct Apps {
     C4d: App,
+    C4dR: App,
     Maya: App,
     ThreeDsMax: App,
     AfterEffects: App,
@@ -42,6 +45,7 @@ pub struct Apps {
     Photoshop: App,
     Indesign: App,
     DavinciResolve: App,
+    DavinciResolveStudio: App,
     Clarisse: App,
     Marvelous: App,
     Cavalry: App,
@@ -54,9 +58,10 @@ pub struct Apps {
     Vegas: App,
 }
 impl Apps {
-    pub fn as_iter(&self) -> [&App; 19] {
-        let APPS: [&App; 19] = [
+    pub fn as_iter(&self) -> [&App; 21] {
+        let APPS: [&App; 21] = [
             &self.C4d,
+            &self.C4dR,
             &self.Maya,
             &self.ThreeDsMax,
             &self.AfterEffects,
@@ -65,6 +70,7 @@ impl Apps {
             &self.Photoshop,
             &self.Indesign,
             &self.DavinciResolve,
+            &self.DavinciResolveStudio,
             &self.Clarisse,
             &self.Marvelous,
             &self.Cavalry,
@@ -80,9 +86,10 @@ impl Apps {
     }
 }
 impl AppKind {
-    pub fn as_iter() -> [AppKind; 19] {
-        let APPKINDS: [AppKind; 19] = [
+    pub fn as_iter() -> [AppKind; 21] {
+        let APPKINDS: [AppKind; 21] = [
             AppKind::C4d,
+            AppKind::C4dR,
             AppKind::Maya,
             AppKind::ThreeDsMax,
             AppKind::AfterEffects,
@@ -91,6 +98,7 @@ impl AppKind {
             AppKind::Photoshop,
             AppKind::Indesign,
             AppKind::DavinciResolve,
+            AppKind::DavinciResolveStudio,
             AppKind::Clarisse,
             AppKind::Marvelous,
             AppKind::Cavalry,
@@ -111,8 +119,14 @@ impl Apps {
             C4d: App {
                 default_project_name: "Cinema 4D Project".to_string(),
                 drp_client_id: "936296341250904065".to_string(),
-                process_search_string: "Cinema 4D R".to_string(),
+                process_search_string: "Cinema 4D".to_string(),
                 kind: AppKind::C4d,
+            },
+            C4dR: App {
+                default_project_name: "Cinema 4D Project".to_string(),
+                drp_client_id: "936296341250904065".to_string(),
+                process_search_string: "Cinema 4D R".to_string(),
+                kind: AppKind::C4dR,
             },
             Maya: App {
                 default_project_name: "Autodesk Maya Project".to_string(),
@@ -161,6 +175,12 @@ impl Apps {
                 drp_client_id: "1016371757722128516".to_string(),
                 process_search_string: "DaVinci Resolve - ".to_string(),
                 kind: AppKind::DavinciResolve,
+            }, 
+            DavinciResolveStudio: App {
+                default_project_name: "Davinci Resolve Project".to_string(),
+                drp_client_id: "1016371757722128516".to_string(),
+                process_search_string: "DaVinci Resolve Studio - ".to_string(),
+                kind: AppKind::DavinciResolveStudio,
             },
             Clarisse: App {
                 default_project_name: "Isotropix Clarisse Project".to_string(),
@@ -255,6 +275,21 @@ impl App {
                 }
                 return window_title[start_i + 1..end_i].to_string();
             }
+            AppKind::C4dR => {
+                let mut end_i: usize = window_title.len();
+                let mut start_i: usize = 0;
+                for (i, char) in window_title.chars().enumerate() {
+                    if char == '[' {
+                        start_i = i;
+                        if let Some(curr_end_i) = window_title.rfind("] - ") {
+                            end_i = curr_end_i;
+                        } else {
+                            return self.default_project_name.clone();
+                        }
+                    }
+                }
+                return window_title[start_i + 1..end_i].to_string();
+            }
             AppKind::Maya => {
                 let match_index = match window_title.as_str().find(".mb* - Autodesk Maya") {
                     Some(i) => i + 5,
@@ -303,6 +338,15 @@ impl App {
             AppKind::DavinciResolve => {
                 let match_index = match window_title.as_str().find("DaVinci Resolve -") {
                     Some(i) => 17 as usize,
+                    None => 0 as usize,
+                };
+                let mut with_project_extention = window_title.clone();
+                with_project_extention.push_str(".drp");
+                return with_project_extention[match_index as usize..].to_string();
+            }
+            AppKind::DavinciResolveStudio => {
+                let match_index = match window_title.as_str().find("DaVinci Resolve Studio -") {
+                    Some(i) => 24 as usize,
                     None => 0 as usize,
                 };
                 let mut with_project_extention = window_title.clone();
